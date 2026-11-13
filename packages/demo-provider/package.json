@@ -1,0 +1,17 @@
+{
+  "name": "@near-pay/demo-provider",
+  "version": "1.0.0",
+  "description": "Mock Paid API Provider demonstrating x402 and MPP challenges",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.5"
+  },
+  "license": "Apache-2.0"
+}
+

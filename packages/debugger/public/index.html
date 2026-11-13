@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEAR Pay — Payment Inspector & Debugger</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f17;
+      color: #e2e8f0;
+    }
+    code, pre, .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .near-gradient {
+      background: linear-gradient(135deg, #00EC97 0%, #00B4D8 100%);
+    }
+    .near-glow {
+      box-shadow: 0 0 25px rgba(0, 236, 151, 0.25);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #111827;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navbar -->
+  <header class="border-b border-gray-800 bg-[#0d131f]/90 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl near-gradient flex items-center justify-center text-black font-extrabold text-xl shadow-lg shadow-emerald-500/20">
+        N
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl font-bold tracking-tight text-white">NEAR Pay</span>
+          <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Debugger v1.0</span>
+          <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30">Track 7: Agent Economy</span>
+        </div>
+        <p class="text-xs text-gray-400">Autonomous Payment Layer for AI Agents • NEAR Intents • x402 & MPP</p>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2 text-xs text-gray-400">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>SSE Stream Connected</span>
+      </div>
+      <button onclick="clearLogs()" class="px-3 py-1.5 text-xs font-medium bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition border border-gray-700">
+        Clear Events
+      </button>
+      <a href="https://github.com/nearai/near-mcp" target="_blank" class="px-3 py-1.5 text-xs font-medium bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg transition border border-emerald-500/40">
+        Docs & Specs
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left Column: Agent Wallet Status & Quick Controls (4 cols) -->
+    <div class="lg:col-span-4 space-y-6">
+
+      <!-- Agent Card -->
+      <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between pb-4 border-b border-gray-800">
+          <h2 class="text-sm font-bold text-gray-300 uppercase tracking-wider flex items-center">
+            <svg class="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            Policy-Bound Agent Wallet
+          </h2>
+          <span class="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30">Zero Master Key</span>
+        </div>
+
+        <div class="mt-4 space-y-3 text-xs">
+          <div>
+            <div class="text-gray-400 font-medium">Agent ID:</div>
+            <div class="mono text-emerald-400 font-semibold truncate" id="agent-id">near-agent-77a9e14c</div>
+          </div>
+          <div>
+            <div class="text-gray-400 font-medium">Master Owner Account:</div>
+            <div class="mono text-blue-400 font-semibold truncate" id="owner-account">alex_near.near</div>
+          </div>
+          <div>
+            <div class="text-gray-400 font-medium">Settlement Rail:</div>
+            <div class="text-gray-200">NEAR Intents (1Click Solver Engine)</div>
+          </div>
+
+          <!-- Balances -->
+          <div class="pt-3 border-t border-gray-800 grid grid-cols-2 gap-3">
+            <div class="bg-gray-800/60 p-3 rounded-xl border border-gray-700/50">
+              <span class="text-gray-400 text-[10px] uppercase font-bold">USDC Balance</span>
+              <div class="text-lg font-extrabold text-white mono" id="bal-usdc">$24.94</div>
+            </div>
+            <div class="bg-gray-800/60 p-3 rounded-xl border border-gray-700/50">
+              <span class="text-gray-400 text-[10px] uppercase font-bold">NEAR Balance</span>
+              <div class="text-lg font-extrabold text-white mono" id="bal-near">14.50 Ⓝ</div>
+            </div>
+          </div>
+
+          <!-- Spending Policy Budget Bar -->
+          <div class="pt-3 border-t border-gray-800 space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-gray-400">24h Daily Budget:</span>
+              <span class="text-white font-bold mono" id="budget-status">$0.06 / $5.00 spent</span>
+            </div>
+            <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+              <div id="budget-bar" class="bg-gradient-to-r from-emerald-500 to-cyan-500 h-2.5 rounded-full transition-all duration-500" style="width: 1.2%"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-gray-500">
+              <span>Max per tx: $0.50</span>
+              <span>Approval threshold: $1.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Trigger Test Actions -->
+      <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <h2 class="text-sm font-bold text-gray-300 uppercase tracking-wider flex items-center">
+          <svg class="w-4 h-4 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Live Interactive Simulator
+        </h2>
+        <p class="text-xs text-gray-400">Trigger test payment flows to inspect protocol challenge interception and settlement live:</p>
+
+        <div class="space-y-2">
+          <button onclick="triggerSimulatedFlow('x402')" class="w-full py-2.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 rounded-xl text-xs font-semibold text-emerald-300 flex items-center justify-between transition">
+            <span>Pay x402 Endpoint ($0.02 USDC)</span>
+            <span class="mono bg-emerald-500/20 px-2 py-0.5 rounded text-[10px]">x402</span>
+          </button>
+          
+          <button onclick="triggerSimulatedFlow('mpp')" class="w-full py-2.5 px-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 rounded-xl text-xs font-semibold text-blue-300 flex items-center justify-between transition">
+            <span>Pay MPP Endpoint ($0.04 USDC)</span>
+            <span class="mono bg-blue-500/20 px-2 py-0.5 rounded text-[10px]">MPP</span>
+          </button>
+
+          <button onclick="triggerSimulatedFlow('negotiate')" class="w-full py-2.5 px-3 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 rounded-xl text-xs font-semibold text-purple-300 flex items-center justify-between transition">
+            <span>Autonomous Negotiation ($0.09 -> $0.046)</span>
+            <span class="mono bg-purple-500/20 px-2 py-0.5 rounded text-[10px]">1-Round</span>
+          </button>
+
+          <button onclick="triggerSimulatedFlow('reject')" class="w-full py-2.5 px-3 bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 rounded-xl text-xs font-semibold text-red-300 flex items-center justify-between transition">
+            <span>Policy Rejection ($10.00 Overlimit)</span>
+            <span class="mono bg-red-500/20 px-2 py-0.5 rounded text-[10px]">Safety Bound</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Real-Time Event Stream & Inspector (8 cols) -->
+    <div class="lg:col-span-8 flex flex-col space-y-6">
+
+      <!-- Payment Lifecycle State Pipeline -->
+      <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Payment Lifecycle Pipeline</h3>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-center text-xs">
+          <div id="step-req" class="p-2.5 rounded-xl border border-gray-800 bg-gray-800/40 text-gray-400 transition-all">
+            <div class="font-bold">1. 402 Intercept</div>
+            <div class="text-[10px] mt-0.5">HTTP Challenge</div>
+          </div>
+          <div id="step-proto" class="p-2.5 rounded-xl border border-gray-800 bg-gray-800/40 text-gray-400 transition-all">
+            <div class="font-bold">2. Protocol</div>
+            <div class="text-[10px] mt-0.5">x402 / MPP</div>
+          </div>
+          <div id="step-policy" class="p-2.5 rounded-xl border border-gray-800 bg-gray-800/40 text-gray-400 transition-all">
+            <div class="font-bold">3. Policy Check</div>
+            <div class="text-[10px] mt-0.5">Budget & Caps</div>
+          </div>
+          <div id="step-settle" class="p-2.5 rounded-xl border border-gray-800 bg-gray-800/40 text-gray-400 transition-all">
+            <div class="font-bold">4. NEAR Intents</div>
+            <div class="text-[10px] mt-0.5">1Click Solver</div>
+          </div>
+          <div id="step-proof" class="p-2.5 rounded-xl border border-gray-800 bg-gray-800/40 text-gray-400 transition-all">
+            <div class="font-bold">5. Verified</div>
+            <div class="text-[10px] mt-0.5">Data & Receipt</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Event Feed -->
+      <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl flex-1 flex flex-col min-h-[450px]">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-800">
+          <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wider flex items-center">
+            <svg class="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            Live Transaction & Intent Stream
+          </h3>
+          <span class="text-xs text-gray-500 font-mono" id="event-count">0 events</span>
+        </div>
+
+        <div id="events-container" class="mt-4 flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2 max-h-[500px]">
+          <!-- Events will populate dynamically here -->
+          <div class="text-center py-16 text-gray-600 text-sm">
+            <p class="font-medium">Waiting for payment events...</p>
+            <p class="text-xs mt-1 text-gray-500">Run <code class="text-emerald-400 bg-gray-800 px-2 py-0.5 rounded">near-pay curl &lt;url&gt;</code> in your terminal or click a test button on the left.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="border-t border-gray-800/80 py-4 px-6 text-center text-xs text-gray-500 bg-[#0d131f]">
+    NEAR Pay — Built for NEAR Hackathon 2026 (Track 7: Agent Economy). Inspired by Solana Foundation pay.sh, powered by NEAR Intents.
+  </footer>
+
+  <script>
+    let eventCount = 0;
+    const eventsContainer = document.getElementById('events-container');
+
+    // Connect to SSE stream
+    const evtSource = new EventSource('/api/stream');
+
+    evtSource.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      if (data.step === 'SYSTEM_RESET') {
+        eventsContainer.innerHTML = '<div class="text-center py-16 text-gray-600 text-sm"><p>Logs cleared. Waiting for events...</p></div>';
+        resetSteps();
+        return;
+      }
+      renderEvent(data);
+    };
+
+    function resetSteps() {
+      ['step-req', 'step-proto', 'step-policy', 'step-settle', 'step-proof'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'p-2.5 rounded-xl border border-gray-800 bg-gray-800/40 text-gray-400 transition-all';
+      });
+    }
+
+    function activateStep(stepId, color = 'emerald') {
+      const el = document.getElementById(stepId);
+      if (el) {
+        el.className = `p-2.5 rounded-xl border border-${color}-500/50 bg-${color}-500/10 text-${color}-300 transition-all shadow-lg shadow-${color}-500/10`;
+      }
+    }
+
+    function renderEvent(ev) {
+      if (eventCount === 0) {
+        eventsContainer.innerHTML = '';
+      }
+      eventCount++;
+      document.getElementById('event-count').innerText = `${eventCount} events`;
+
+      const card = document.createElement('div');
+      card.className = 'p-4 rounded-xl border border-gray-800 bg-gray-800/50 text-xs space-y-2 hover:border-gray-700 transition';
+
+      const time = new Date(ev.timestamp || Date.now()).toLocaleTimeString();
+      let badge = 'bg-gray-700 text-gray-300';
+      let title = ev.step;
+      let detailsHtml = '';
+
+      switch (ev.step) {
+        case 'REQUEST_START':
+          activateStep('step-req', 'cyan');
+          badge = 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30';
+          title = `HTTP ${ev.details.method || 'GET'} Requested`;
+          detailsHtml = `<div class="mono text-gray-300">${ev.details.url || ev.url}</div>`;
+          break;
+
+        case 'PAYMENT_REQUIRED':
+          badge = 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+          title = 'HTTP 402 Payment Required Intercepted';
+          detailsHtml = `<div class="text-gray-400">Server issued micro-payment challenge. Intercepting before agent error.</div>`;
+          break;
+
+        case 'PROTOCOL_DETECTED':
+          activateStep('step-proto', 'blue');
+          badge = 'bg-blue-500/20 text-blue-400 border border-blue-500/30';
+          title = `Protocol Detected: ${ev.details.protocol.toUpperCase()}`;
+          detailsHtml = `
+            <div class="grid grid-cols-2 gap-2 mt-1">
+              <div><span class="text-gray-500">Price:</span> <span class="text-white font-bold mono">$${ev.details.challenge.amount} ${ev.details.challenge.currency}</span></div>
+              <div><span class="text-gray-500">Payee:</span> <span class="mono text-gray-300">${ev.details.challenge.recipient}</span></div>
+            </div>`;
+          break;
+
+        case 'NEGOTIATION_TRIGGERED':
+          badge = 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+          title = 'Autonomous Negotiation Triggered';
+          detailsHtml = `<div class="text-gray-300">Quote of $${ev.details.quote} exceeded task target of $${ev.details.plannedBudget}. Formulating 1-round counter-offer...</div>`;
+          break;
+
+        case 'NEGOTIATION_RESULT':
+          badge = 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+          title = 'Negotiation Result';
+          detailsHtml = `<div class="text-purple-300">${ev.details.reasoning}</div>`;
+          break;
+
+        case 'POLICY_APPROVED':
+          activateStep('step-policy', 'emerald');
+          badge = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          title = 'Spending Policy Verified (Passed)';
+          detailsHtml = `<div class="text-gray-300">Authorized spend of $${ev.details.amount} ${ev.details.currency}. Remaining daily allowance: <span class="mono font-bold text-emerald-400">$${ev.details.dailyRemaining.toFixed(2)}</span></div>`;
+          // Update UI budget
+          document.getElementById('budget-status').innerText = `$${(5.00 - ev.details.dailyRemaining).toFixed(2)} / $5.00 spent`;
+          const pct = Math.min(100, ((5.00 - ev.details.dailyRemaining) / 5.00) * 100);
+          document.getElementById('budget-bar').style.width = `${Math.max(2, pct)}%`;
+          break;
+
+        case 'POLICY_REJECTED':
+          activateStep('step-policy', 'red');
+          badge = 'bg-red-500/20 text-red-400 border border-red-500/30';
+          title = 'Policy Safety Bounds Triggered (Payment Blocked)';
+          detailsHtml = `<div class="text-red-400 font-medium">${ev.details.reason}</div>`;
+          break;
+
+        case 'SETTLEMENT_SUCCESS':
+          activateStep('step-settle', 'cyan');
+          badge = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          title = 'NEAR Intents Settlement Completed';
+          detailsHtml = `
+            <div class="space-y-1 mt-1">
+              <div><span class="text-gray-500">Intent Hash:</span> <span class="mono text-cyan-300">${ev.details.intentHash}</span></div>
+              <div><span class="text-gray-500">Solver:</span> <span class="mono text-gray-300">${ev.details.solver}</span></div>
+            </div>`;
+          break;
+
+        case 'RETRY_RESPONSE':
+          activateStep('step-proof', 'emerald');
+          badge = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          title = 'Verified API Response Delivered';
+          detailsHtml = `<div class="text-emerald-300 font-semibold">API verified payment proof and returned requested data (HTTP 200 OK).</div>`;
+          break;
+
+        case 'RECEIPT_GENERATED':
+          badge = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          title = `Tamper-Evident Receipt Recorded [${ev.details.receipt.receiptId}]`;
+          detailsHtml = `
+            <div class="p-2 rounded bg-gray-900/80 border border-gray-800 space-y-1 font-mono text-[11px]">
+              <div><span class="text-gray-500">Amount:</span> $${ev.details.receipt.amount} ${ev.details.receipt.currency}</div>
+              <div><span class="text-gray-500">Recipient:</span> ${ev.details.receipt.provider}</div>
+              <div><span class="text-gray-500">Rail:</span> ${ev.details.receipt.settlementType}</div>
+              <div><span class="text-gray-500">Tx Proof:</span> ${ev.details.receipt.txHash}</div>
+            </div>`;
+          break;
+
+        default:
+          title = ev.step;
+          detailsHtml = `<pre class="text-gray-400 overflow-x-auto">${JSON.stringify(ev.details || {}, null, 2)}</pre>`;
+          break;
+      }
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${badge}">${ev.step.replace(/_/g, ' ')}</span>
+            <span class="font-semibold text-white">${title}</span>
+          </div>
+          <span class="text-gray-500 mono text-[10px]">${time}</span>
+        </div>
+        ${detailsHtml}
+      `;
+
+      eventsContainer.insertBefore(card, eventsContainer.firstChild);
+    }
+
+    function clearLogs() {
+      fetch('/api/clear', { method: 'POST' });
+    }
+
+    // Simulated flows for immediate UI testing
+    async function triggerSimulatedFlow(type) {
+      resetSteps();
+      if (type === 'x402') {
+        await postEvent('REQUEST_START', { url: 'http://localhost:4025/v1/near/top-ecosystem', method: 'GET' });
+        await sleep(300);
+        await postEvent('PAYMENT_REQUIRED', { status: 402 });
+        await sleep(300);
+        await postEvent('PROTOCOL_DETECTED', { protocol: 'x402', challenge: { amount: 0.02, currency: 'USDC', recipient: 'aurora_analytics.near', network: 'near' } });
+        await sleep(400);
+        await postEvent('POLICY_APPROVED', { amount: 0.02, currency: 'USDC', dailyRemaining: 4.92 });
+        await sleep(450);
+        await postEvent('SETTLEMENT_SUCCESS', { intentHash: '0xint_9a8f273b019c4d92', solver: 'solver-primary.market.near.ai', amountSettled: 0.02 });
+        await sleep(350);
+        await postEvent('RETRY_RESPONSE', { status: 200, workPassed: true });
+        await sleep(200);
+        await postEvent('RECEIPT_GENERATED', { receipt: { receiptId: 'rcpt_7f39b1a', amount: 0.02, currency: 'USDC', provider: 'aurora_analytics.near', settlementType: 'NEAR Intents (1Click solver)', txHash: '0xint_9a8f273b019c4d92' } });
+      } else if (type === 'mpp') {
+        await postEvent('REQUEST_START', { url: 'http://localhost:4025/v1/near/validator-intelligence', method: 'GET' });
+        await sleep(300);
+        await postEvent('PAYMENT_REQUIRED', { status: 402 });
+        await sleep(300);
+        await postEvent('PROTOCOL_DETECTED', { protocol: 'mpp', challenge: { amount: 0.04, currency: 'USDC', recipient: 'staking_oracle.near', network: 'near' } });
+        await sleep(400);
+        await postEvent('POLICY_APPROVED', { amount: 0.04, currency: 'USDC', dailyRemaining: 4.88 });
+        await sleep(450);
+        await postEvent('SETTLEMENT_SUCCESS', { intentHash: '0xint_mpp_884102c9d', solver: '1click-mpp-solver.near', amountSettled: 0.04 });
+        await sleep(350);
+        await postEvent('RETRY_RESPONSE', { status: 200, workPassed: true });
+        await sleep(200);
+        await postEvent('RECEIPT_GENERATED', { receipt: { receiptId: 'rcpt_mpp_551b', amount: 0.04, currency: 'USDC', provider: 'staking_oracle.near', settlementType: 'NEAR Intents (MPP Solver)', txHash: '0xint_mpp_884102c9d' } });
+      } else if (type === 'negotiate') {
+        await postEvent('REQUEST_START', { url: 'http://localhost:4025/v1/near/market-research', method: 'GET' });
+        await sleep(300);
+        await postEvent('PAYMENT_REQUIRED', { status: 402 });
+        await sleep(300);
+        await postEvent('PROTOCOL_DETECTED', { protocol: 'x402', challenge: { amount: 0.09, currency: 'USDC', recipient: 'research_firm.near', network: 'near' } });
+        await sleep(400);
+        await postEvent('NEGOTIATION_TRIGGERED', { quote: 0.09, plannedBudget: 0.04 });
+        await sleep(500);
+        await postEvent('NEGOTIATION_RESULT', { counterAccepted: true, finalPrice: 0.046, reasoning: 'Historical rate indicates 500 records is $0.04. Countering $0.046 for SLA -> Provider Solver Accepted!' });
+        await sleep(400);
+        await postEvent('POLICY_APPROVED', { amount: 0.046, currency: 'USDC', dailyRemaining: 4.834 });
+        await sleep(450);
+        await postEvent('SETTLEMENT_SUCCESS', { intentHash: '0xint_neg_28f9104b', solver: 'market.near.ai-solver', amountSettled: 0.046 });
+        await sleep(350);
+        await postEvent('RETRY_RESPONSE', { status: 200, workPassed: true });
+        await sleep(200);
+        await postEvent('RECEIPT_GENERATED', { receipt: { receiptId: 'rcpt_neg_9921', amount: 0.046, currency: 'USDC', provider: 'research_firm.near', settlementType: 'NEAR Intents (Negotiated)', txHash: '0xint_neg_28f9104b' } });
+      } else if (type === 'reject') {
+        await postEvent('REQUEST_START', { url: 'https://malicious-drain-api.org/v1/drain', method: 'POST' });
+        await sleep(300);
+        await postEvent('PAYMENT_REQUIRED', { status: 402 });
+        await sleep(300);
+        await postEvent('PROTOCOL_DETECTED', { protocol: 'x402', challenge: { amount: 10.00, currency: 'USDC', recipient: 'drainer.near', network: 'near' } });
+        await sleep(400);
+        await postEvent('POLICY_REJECTED', { reason: 'Requested amount ($10.00 USDC) exceeds maximum single payment cap of $0.50 and daily budget limit.' });
+      }
+    }
+
+    async function postEvent(step, details) {
+      await fetch('/api/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step, timestamp: Date.now(), details })
+      });
+    }
+
+    function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+  </script>
+</body>
+</html>
+

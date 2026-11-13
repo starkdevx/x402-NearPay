@@ -1,0 +1,17 @@
+{
+  "name": "@near-pay/debugger",
+  "version": "1.0.0",
+  "description": "NEAR Pay Visual Payment Inspector & Debugger Dashboard",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.5"
+  },
+  "license": "Apache-2.0"
+}
+

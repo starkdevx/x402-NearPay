@@ -1,0 +1,22 @@
+{
+  "name": "@near-pay/core",
+  "version": "1.0.0",
+  "description": "NEAR Pay Core SDK and CLI for autonomous AI agent payments",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "near-pay": "bin/near-pay.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.5"
+  },
+  "license": "Apache-2.0"
+}
+

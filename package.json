@@ -1,0 +1,31 @@
+{
+  "name": "near-pay-monorepo",
+  "version": "1.0.0",
+  "description": "NEAR Pay — The Payment Layer for AI Agents (NEAR Hackathon Track 7)",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "npm run cli --",
+    "cli": "node packages/core/dist/cli.js",
+    "build": "npm run build --workspaces",
+    "demo": "node packages/core/dist/cli.js demo",
+    "mcp": "node packages/mcp-server/dist/index.js",
+    "debugger": "node packages/debugger/dist/server.js",
+    "provider": "node packages/demo-provider/dist/server.js"
+  },
+  "keywords": [
+    "near",
+    "near-intents",
+    "x402",
+    "mpp",
+    "agent-economy",
+    "hackathon",
+    "ai-agent",
+    "mcp"
+  ],
+  "author": "NEAR Pay Team",
+  "license": "Apache-2.0"
+}
+
