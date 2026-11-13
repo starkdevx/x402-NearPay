@@ -1,31 +1,32 @@
 {
-  "name": "near-pay-monorepo",
+  "name": "near-x402-gateway",
   "version": "1.0.0",
-  "description": "NEAR Pay — The Payment Layer for AI Agents (NEAR Hackathon Track 7)",
+  "description": "NEAR x402 — Micropayment-Gated Historical Blockchain Data Gateway & pay.sh CLI",
   "private": true,
   "workspaces": [
+    "shared/*",
+    "backend/*",
+    "frontend/*",
+    "cli",
     "packages/*"
   ],
   "scripts": {
-    "start": "npm run cli --",
-    "cli": "node packages/core/dist/cli.js",
     "build": "npm run build --workspaces",
-    "demo": "node packages/core/dist/cli.js demo",
-    "mcp": "node packages/mcp-server/dist/index.js",
-    "debugger": "node packages/debugger/dist/server.js",
-    "provider": "node packages/demo-provider/dist/server.js"
+    "facilitator": "node backend/facilitator/dist/index.js",
+    "gateway": "node backend/gateway/dist/index.js",
+    "dashboard": "node frontend/dashboard/dist/server.js",
+    "cli": "node cli/dist/index.js",
+    "dev": "node backend/facilitator/dist/index.js & node backend/gateway/dist/index.js & node frontend/dashboard/dist/server.js"
   },
   "keywords": [
     "near",
-    "near-intents",
     "x402",
-    "mpp",
-    "agent-economy",
-    "hackathon",
-    "ai-agent",
-    "mcp"
+    "micropayments",
+    "archival-data",
+    "rpc-gateway",
+    "pay-sh"
   ],
-  "author": "NEAR Pay Team",
+  "author": "NEAR x402 Team",
   "license": "Apache-2.0"
 }
 

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEAR x402 — Micropayment-Gated Historical Blockchain Data Gateway</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #080d14;
+      color: #f1f5f9;
+    }
+    code, pre, .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .near-emerald {
+      color: #00EC97;
+    }
+    .bg-near-emerald {
+      background-color: #00EC97;
+    }
+    .border-near-emerald {
+      border-color: #00EC97;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navigation Header -->
+  <header class="border-b border-gray-800/80 bg-[#0c121d]/90 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00EC97] to-[#00B4D8] flex items-center justify-center text-black font-black text-xl shadow-lg shadow-emerald-500/20">
+        Ⓝ
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-lg font-extrabold tracking-tight text-white">NEAR x402 Gateway</h1>
+          <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-[#00EC97] border border-emerald-500/30">Mainnet Archival</span>
+          <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30">HTTP 402 Protocol</span>
+        </div>
+        <p class="text-xs text-gray-400">Micropayment-gated access to NEAR historical blockchain blocks, transactions & state</p>
+      </div>
+    </div>
+
+    <!-- Right Controls: Status & Wallet -->
+    <div class="flex items-center space-x-4">
+      <!-- Live Service Indicators -->
+      <div class="hidden md:flex items-center space-x-3 text-xs bg-gray-900/80 px-3 py-1.5 rounded-xl border border-gray-800">
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-gray-300">Gateway :4021</span>
+        </div>
+        <span class="text-gray-600">|</span>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="text-gray-300">Facilitator :3000</span>
+        </div>
+        <span class="text-gray-600">|</span>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <span class="text-gray-300">Archival RPC</span>
+        </div>
+      </div>
+
+      <!-- Wallet Connection Button -->
+      <button id="wallet-btn" onclick="toggleWallet()" class="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black shadow-lg shadow-emerald-500/20 transition flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        <span id="wallet-label">Connected: developer.near</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+
+    <!-- Hero / Metrics Banner -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4">
+        <div class="text-gray-400 text-xs font-semibold uppercase">Wallet Balance</div>
+        <div class="text-2xl font-extrabold text-white mt-1 mono" id="wallet-balance">8.4520 <span class="text-emerald-400 text-base">NEAR</span></div>
+        <div class="text-xs text-gray-500 mt-1">Non-custodial micro-allowance</div>
+      </div>
+      <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4">
+        <div class="text-gray-400 text-xs font-semibold uppercase">Gateway Model</div>
+        <div class="text-xl font-bold text-emerald-400 mt-1">HTTP 402 + x402</div>
+        <div class="text-xs text-gray-500 mt-1">Pay-per-query & Range batching</div>
+      </div>
+      <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4">
+        <div class="text-gray-400 text-xs font-semibold uppercase">Historical Coverage</div>
+        <div class="text-xl font-bold text-white mt-1 mono">Epoch 1 - Present</div>
+        <div class="text-xs text-gray-500 mt-1">Full state & execution outcome</div>
+      </div>
+      <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-4">
+        <div class="text-gray-400 text-xs font-semibold uppercase">Range Pass Status</div>
+        <div class="text-xl font-bold text-cyan-400 mt-1" id="range-pass-status">Active (10k Blocks)</div>
+        <div class="text-xs text-gray-500 mt-1" id="range-pass-details">Blocks 115,000,000 - 115,010,000</div>
+      </div>
+    </div>
+
+    <!-- Tab Selection: Query Interface vs Range Batching -->
+    <div class="flex space-x-2 border-b border-gray-800 pb-2">
+      <button onclick="switchTab('query')" id="tab-query-btn" class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 transition">
+        Interactive Historical Query (Pay-per-Query)
+      </button>
+      <button onclick="switchTab('range')" id="tab-range-btn" class="px-4 py-2 text-xs font-bold rounded-lg text-gray-400 hover:text-white transition">
+        Range-Based Payment Batching (Bulk Access Pass)
+      </button>
+    </div>
+
+    <!-- TAB 1: Pay-Per-Query Interactive Explorer -->
+    <div id="tab-query" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left Query Panel (5 cols) -->
+      <div class="lg:col-span-5 bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-800">
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center">
+            <svg class="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            RPC Query Builder
+          </h2>
+          <span class="text-xs font-mono text-emerald-400 font-bold" id="current-price">0.00005 NEAR ($0.00025)</span>
+        </div>
+
+        <!-- Presets -->
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">Load Historical Example:</label>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="loadPreset('block_archive')" class="p-2 bg-gray-800/60 hover:bg-gray-800 rounded-lg border border-gray-700/60 text-left text-gray-300">
+              <div class="font-bold text-white">Block #115000000</div>
+              <div class="text-[10px] text-gray-400">Historical Archival Block</div>
+            </button>
+            <button onclick="loadPreset('block_final')" class="p-2 bg-gray-800/60 hover:bg-gray-800 rounded-lg border border-gray-700/60 text-left text-gray-300">
+              <div class="font-bold text-white">Latest Final Block</div>
+              <div class="text-[10px] text-gray-400">finality: final</div>
+            </button>
+            <button onclick="loadPreset('tx_sample')" class="p-2 bg-gray-800/60 hover:bg-gray-800 rounded-lg border border-gray-700/60 text-left text-gray-300">
+              <div class="font-bold text-white">Historical Tx Query</div>
+              <div class="text-[10px] text-gray-400">Near Transfer Status</div>
+            </button>
+            <button onclick="loadPreset('query_account')" class="p-2 bg-gray-800/60 hover:bg-gray-800 rounded-lg border border-gray-700/60 text-left text-gray-300">
+              <div class="font-bold text-white">View Account State</div>
+              <div class="text-[10px] text-gray-400">relay.near storage & balance</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Method Selector -->
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">RPC Method:</label>
+          <select id="method-select" onchange="updateMethodPricing()" class="w-full bg-gray-800/90 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <option value="block">block — 0.00005 NEAR ($0.00025)</option>
+            <option value="tx">tx — 0.00002 NEAR ($0.00010)</option>
+            <option value="chunk">chunk — 0.00002 NEAR ($0.00010)</option>
+            <option value="query">query (view_account / state) — 0.00003 NEAR ($0.00015)</option>
+            <option value="gas_price">gas_price — 0.00001 NEAR ($0.00005)</option>
+            <option value="validators">validators — 0.00004 NEAR ($0.00020)</option>
+          </select>
+        </div>
+
+        <!-- Params Editor -->
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">JSON-RPC Params:</label>
+          <textarea id="params-input" rows="5" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs mono text-emerald-400 focus:outline-none focus:border-emerald-500">{"block_id": 115000000}</textarea>
+        </div>
+
+        <!-- Pay & Fetch Button -->
+        <button onclick="executePaymentQuery()" id="pay-btn" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-extrabold rounded-xl shadow-lg shadow-emerald-500/20 text-xs uppercase tracking-wider flex items-center justify-center space-x-2 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          <span id="pay-btn-label">Pay Micropayment & Fetch Data</span>
+        </button>
+
+        <div class="text-[11px] text-gray-500 flex items-center justify-between">
+          <span>Recipient: <code class="text-gray-400">treasury.nearpay.near</code></span>
+          <span>Settlement: Instant (0.3s)</span>
+        </div>
+      </div>
+
+      <!-- Right Response & Receipt Panel (7 cols) -->
+      <div class="lg:col-span-7 bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl flex flex-col space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-800">
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center">
+            <svg class="w-4 h-4 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            RPC Response & Cryptographic Receipt
+          </h2>
+          <span class="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 font-mono" id="status-pill">HTTP 200 Ready</span>
+        </div>
+
+        <!-- Receipt Card (Populated after payment) -->
+        <div id="receipt-card" class="hidden bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-xs space-y-1.5 font-mono">
+          <div class="flex items-center justify-between text-emerald-400 font-bold">
+            <span>[PASS] Cryptographic Receipt Generated</span>
+            <span id="receipt-time">Just now</span>
+          </div>
+          <div class="text-gray-300">Tx Hash: <span id="receipt-hash" class="text-white"></span></div>
+          <div class="text-gray-300">Amount Settled: <span id="receipt-amount" class="text-white">0.00005 NEAR</span></div>
+          <div class="text-gray-300">
+            Explorer: <a id="receipt-link" href="#" target="_blank" class="text-[#00EC97] underline hover:text-white">View on NearBlocks Explorer</a>
+          </div>
+        </div>
+
+        <!-- JSON Output Viewer -->
+        <div class="flex-1 bg-gray-950 border border-gray-800 rounded-xl p-4 overflow-y-auto max-h-[460px]">
+          <pre id="json-viewer" class="text-xs mono text-gray-300 whitespace-pre-wrap">// Query output will appear here after clicking 'Pay Micropayment & Fetch Data'
+// Try loading one of the historical presets on the left.</pre>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: Range-Based Payment Batching -->
+    <div id="tab-range" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <div class="lg:col-span-5 bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center">
+          <svg class="w-4 h-4 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+          Purchase Range Access Pass
+        </h2>
+        <p class="text-xs text-gray-400">
+          Instead of paying per query, purchase access to a range of blocks (e.g. 10,000 blocks). You receive a signed JWT token and can query freely within that range with 0 per-query transaction overhead.
+        </p>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">Start Block Height:</label>
+            <input type="number" id="range-start" value="115000000" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-xs mono text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">End Block Height:</label>
+            <input type="number" id="range-end" value="115010000" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-xs mono text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">Pass Duration:</label>
+            <select id="range-duration" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white">
+              <option value="3600">1 Hour (3,600 seconds) — Best for quick research</option>
+              <option value="86400">24 Hours (86,400 seconds) — Best for data pipeline indexing</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bg-gray-800/60 p-3 rounded-xl border border-gray-700/60 space-y-1 text-xs">
+          <div class="flex justify-between"><span class="text-gray-400">Blocks in range:</span> <span class="mono font-bold text-white">10,001 blocks</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Batch Rate:</span> <span class="mono text-gray-300">0.000005 NEAR/block</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Total Price:</span> <span class="mono font-bold text-emerald-400">0.0500 NEAR (~$0.25)</span></div>
+        </div>
+
+        <button onclick="purchaseRangePass()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-extrabold rounded-xl shadow-lg shadow-cyan-500/20 text-xs uppercase tracking-wider transition">
+          Purchase Range Pass (One-Time Payment)
+        </button>
+      </div>
+
+      <div class="lg:col-span-7 bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center">
+          <svg class="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Active Range Pass & JWT Token
+        </h2>
+
+        <div class="bg-gray-950 border border-gray-800 rounded-xl p-4 space-y-3 text-xs mono">
+          <div>
+            <span class="text-gray-500">Pass Status:</span>
+            <span class="text-emerald-400 font-bold ml-2">ACTIVE (Bypassing 402 Paywalls)</span>
+          </div>
+          <div>
+            <span class="text-gray-500">Authorized Range:</span>
+            <span class="text-white font-bold ml-2">Blocks 115000000 - 115010000</span>
+          </div>
+          <div>
+            <span class="text-gray-500">Header Used:</span>
+            <span class="text-cyan-400 ml-2">X-Range-Token: &lt;signed-jwt&gt;</span>
+          </div>
+          <div class="pt-2 border-t border-gray-800">
+            <span class="text-gray-500 block mb-1">Live Token:</span>
+            <div id="range-token-display" class="bg-gray-900 p-2.5 rounded-lg border border-gray-800 text-[11px] text-gray-400 break-all select-all">
+              eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFydEJsb2NrIjoxMTUwMDAwMDAsImVuZEJsb2NrIjoxMTUwMTAwMDAsInBheWVyIjoiZGV2ZWxvcGVyLm5lYXIiLCJleHBpcmVzQXQiOjE3OTQ5MDAwMDAwMDB9.7c89f10a2e4b6c...
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl text-xs text-blue-300">
+          <strong>Tip for Data Researchers:</strong> With this range token active, any query using <code class="text-white">near-pay curl</code> or standard <code class="text-white">curl -H "X-Range-Token: ..."</code> for blocks inside this range will execute with zero HTTP 402 interruption!
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Receipts Table Section -->
+    <div class="bg-gray-900/70 border border-gray-800 rounded-2xl p-5 shadow-xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-800">
+        <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center">
+          <svg class="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+          Live Transaction Receipts & Settlement Ledger
+        </h2>
+        <span class="text-xs text-gray-500 font-mono" id="receipt-count">2 transactions</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="border-b border-gray-800 text-gray-500 uppercase font-mono">
+              <th class="pb-2">Time</th>
+              <th class="pb-2">Method</th>
+              <th class="pb-2">Amount</th>
+              <th class="pb-2">Payer</th>
+              <th class="pb-2">NEAR Tx Signature</th>
+              <th class="pb-2">Status</th>
+              <th class="pb-2">Explorer</th>
+            </tr>
+          </thead>
+          <tbody id="receipts-tbody" class="divide-y divide-gray-800 font-mono text-gray-300">
+            <tr>
+              <td class="py-2.5">Just now</td>
+              <td><span class="px-2 py-0.5 rounded bg-gray-800 text-cyan-400">block</span></td>
+              <td class="text-white font-bold">0.00005 NEAR</td>
+              <td>developer.near</td>
+              <td class="text-gray-400">near_tx_7fa918b2c40...</td>
+              <td><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px]">CONFIRMED</span></td>
+              <td><a href="https://nearblocks.io" target="_blank" class="text-emerald-400 underline">View</a></td>
+            </tr>
+            <tr>
+              <td class="py-2.5">2 mins ago</td>
+              <td><span class="px-2 py-0.5 rounded bg-gray-800 text-purple-400">tx</span></td>
+              <td class="text-white font-bold">0.00002 NEAR</td>
+              <td>developer.near</td>
+              <td class="text-gray-400">near_tx_881902c41a9...</td>
+              <td><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px]">CONFIRMED</span></td>
+              <td><a href="https://nearblocks.io" target="_blank" class="text-emerald-400 underline">View</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-gray-800/80 py-4 px-6 text-center text-xs text-gray-500 bg-[#0c121d]">
+    NEAR x402 Micropayment Gateway — Inspired by Solana Old Faithful & pay.sh, built natively for NEAR Protocol.
+  </footer>
+
+  <script>
+    let activeRangeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGFydEJsb2NrIjoxMTUwMDAwMDAsImVuZEJsb2NrIjoxMTUwMTAwMDAsInBheWVyIjoiZGV2ZWxvcGVyLm5lYXIiLCJleHBpcmVzQXQiOjE3OTQ5MDAwMDAwMDB9.7c89f10a2e4b6c";
+
+    const PRICING = {
+      block: { near: "0.00005 NEAR", usd: "$0.00025", yocto: "50000000000000000000" },
+      tx: { near: "0.00002 NEAR", usd: "$0.00010", yocto: "20000000000000000000" },
+      chunk: { near: "0.00002 NEAR", usd: "$0.00010", yocto: "20000000000000000000" },
+      query: { near: "0.00003 NEAR", usd: "$0.00015", yocto: "30000000000000000000" },
+      gas_price: { near: "0.00001 NEAR", usd: "$0.00005", yocto: "10000000000000000000" },
+      validators: { near: "0.00004 NEAR", usd: "$0.00020", yocto: "40000000000000000000" }
+    };
+
+    function updateMethodPricing() {
+      const m = document.getElementById('method-select').value;
+      const p = PRICING[m] || PRICING.block;
+      document.getElementById('current-price').innerText = `${p.near} (${p.usd})`;
+    }
+
+    function switchTab(tab) {
+      if (tab === 'query') {
+        document.getElementById('tab-query').classList.remove('hidden');
+        document.getElementById('tab-range').classList.add('hidden');
+        document.getElementById('tab-query-btn').className = 'px-4 py-2 text-xs font-bold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 transition';
+        document.getElementById('tab-range-btn').className = 'px-4 py-2 text-xs font-bold rounded-lg text-gray-400 hover:text-white transition';
+      } else {
+        document.getElementById('tab-query').classList.add('hidden');
+        document.getElementById('tab-range').classList.remove('hidden');
+        document.getElementById('tab-range-btn').className = 'px-4 py-2 text-xs font-bold rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition';
+        document.getElementById('tab-query-btn').className = 'px-4 py-2 text-xs font-bold rounded-lg text-gray-400 hover:text-white transition';
+      }
+    }
+
+    function loadPreset(preset) {
+      if (preset === 'block_archive') {
+        document.getElementById('method-select').value = 'block';
+        document.getElementById('params-input').value = JSON.stringify({ block_id: 115000000 }, null, 2);
+      } else if (preset === 'block_final') {
+        document.getElementById('method-select').value = 'block';
+        document.getElementById('params-input').value = JSON.stringify({ finality: 'final' }, null, 2);
+      } else if (preset === 'tx_sample') {
+        document.getElementById('method-select').value = 'tx';
+        document.getElementById('params-input').value = JSON.stringify(["3G8fVhYvVrHDoUQdckWsMF8EDgEpXvkzrm98EE34VHW6LFUyX8fASdoGKhCQX9zz1xLm5zjwi3DoE7FEbm4RHRSU", "relay.near"], null, 2);
+      } else if (preset === 'query_account') {
+        document.getElementById('method-select').value = 'query';
+        document.getElementById('params-input').value = JSON.stringify({ request_type: "view_account", finality: "final", account_id: "relay.near" }, null, 2);
+      }
+      updateMethodPricing();
+    }
+
+    async function executePaymentQuery() {
+      const method = document.getElementById('method-select').value;
+      const rawParams = document.getElementById('params-input').value;
+      let params = {};
+      try { params = JSON.parse(rawParams); } catch { params = rawParams; }
+
+      const payBtn = document.getElementById('pay-btn');
+      const payLabel = document.getElementById('pay-btn-label');
+      payBtn.disabled = true;
+      payLabel.innerText = "Signing Micropayment...";
+
+      try {
+        // Step 1: Request from Gateway on port 4021
+        const payload = { jsonrpc: "2.0", id: 1, method, params };
+        
+        // Generate simulated non-custodial signature
+        const txSig = `near_sig_${Math.random().toString(16).substring(2, 10)}${Date.now()}`;
+        const proofObj = {
+          payer: "developer.near",
+          recipient: "treasury.nearpay.near",
+          amountYocto: (PRICING[method] || PRICING.block).yocto,
+          txHash: txSig,
+          timestamp: Date.now()
+        };
+        const paymentHeader = btoa(JSON.stringify(proofObj));
+
+        const res = await fetch('http://localhost:4021/rpc', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Payment-Signature': paymentHeader
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        document.getElementById('json-viewer').innerText = JSON.stringify(data, null, 2);
+        document.getElementById('status-pill').innerText = `HTTP ${res.status} Verified`;
+        document.getElementById('status-pill').className = 'text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono';
+
+        if (data.receipt) {
+          document.getElementById('receipt-card').classList.remove('hidden');
+          document.getElementById('receipt-hash').innerText = data.receipt.signature;
+          document.getElementById('receipt-amount').innerText = data.receipt.amount;
+          document.getElementById('receipt-link').href = data.receipt.explorerUrl;
+
+          // Append to receipts table
+          addReceiptRow(method, data.receipt);
+        }
+      } catch (err) {
+        document.getElementById('json-viewer').innerText = `Error: ${err.message}`;
+      } finally {
+        payBtn.disabled = false;
+        payLabel.innerText = "Pay Micropayment & Fetch Data";
+      }
+    }
+
+    function addReceiptRow(method, receipt) {
+      const tbody = document.getElementById('receipts-tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="py-2.5">Just now</td>
+        <td><span class="px-2 py-0.5 rounded bg-gray-800 text-cyan-400">${method}</span></td>
+        <td class="text-white font-bold">${receipt.amount}</td>
+        <td>${receipt.payer}</td>
+        <td class="text-gray-400">${receipt.signature.substring(0, 16)}...</td>
+        <td><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px]">CONFIRMED</span></td>
+        <td><a href="${receipt.explorerUrl}" target="_blank" class="text-emerald-400 underline">View</a></td>
+      `;
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    async function purchaseRangePass() {
+      const start = document.getElementById('range-start').value;
+      const end = document.getElementById('range-end').value;
+      const duration = document.getElementById('range-duration').value;
+
+      try {
+        const res = await fetch('http://localhost:4021/purchase-range', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            startBlock: Number(start),
+            endBlock: Number(end),
+            durationSeconds: Number(duration),
+            payer: 'developer.near',
+            paymentTxSignature: `range_tx_${Date.now()}`
+          })
+        });
+
+        const data = await res.json();
+        if (data.token) {
+          activeRangeToken = data.token;
+          document.getElementById('range-token-display').innerText = data.token;
+          alert(`Success! Range Pass purchased for blocks ${start} - ${end}. You can now query any block in this range freely.`);
+        }
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      }
+    }
+
+    function toggleWallet() {
+      alert("Connected non-custodial wallet: developer.near\nNetwork: NEAR Mainnet\nAllowance: Sufficient for ~170,000 queries");
+    }
+  </script>
+</body>
+</html>
