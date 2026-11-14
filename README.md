@@ -1,4 +1,4 @@
-# Micropayment-Gated Historical NEAR Blockchain Data
+# x402 NearPay – Micropayment-Powered Data, API, Compute & CLI Gateway
 ### Best x402 Integration on NEAR Protocol (Track 7: Agent Economy)
 
 A production-ready micropayment gateway that implements **HTTP 402 (Payment Required)** to monetize access to historical NEAR blockchain data. Users and AI agents pay micro-amounts in NEAR or USDC to query historical transactions, blocks, chunk execution outcomes, and contract states.
