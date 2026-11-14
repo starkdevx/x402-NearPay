@@ -84,7 +84,7 @@ function handleWhoami(): void {
   console.log(`\n${c.bright}${c.cyan}==> NEAR Pay Wallet Profile${c.reset}`);
   console.log(`  * Account ID:     ${c.green}developer.near${c.reset}`);
   console.log(`  * Gateway Target: ${c.cyan}http://localhost:4021/rpc${c.reset}`);
-  console.log(`  * Facilitator:    ${c.cyan}http://localhost:3000${c.reset}`);
+  console.log(`  * Facilitator:    ${c.cyan}http://localhost:3005${c.reset}`);
   console.log(`  * Payment Mode:   Non-Custodial NEAR Micropayments (x402)\n`);
 }
 
@@ -248,3 +248,4 @@ async function handleBuyRange(args: string[]): Promise<void> {
   console.log(`  * Token saved: ~/.near-pay/range-token.json`);
   console.log(`  * You can now run unlimited queries for blocks ${startBlock}-${endBlock} without paying per-query!\n`);
 }
+

@@ -21,3 +21,4 @@ app.get('/health', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[NEAR x402 Dashboard] Running at http://localhost:${PORT}`);
 });
+

@@ -1,5 +1,5 @@
 export const CONFIG = {
-  PORT: parseInt(process.env.FACILITATOR_PORT || '3000', 10),
+  PORT: parseInt(process.env.FACILITATOR_PORT || '3005', 10),
   NETWORK: process.env.NETWORK || 'mainnet',
   NEAR_RPC_URL: process.env.NEAR_RPC_URL || 'https://archival-rpc.mainnet.near.org',
   FALLBACK_RPC_URL: 'https://rpc.mainnet.near.org',
@@ -9,3 +9,4 @@ export const CONFIG = {
     ? 'https://testnet.nearblocks.io/tx/' 
     : 'https://nearblocks.io/tx/'
 };
+

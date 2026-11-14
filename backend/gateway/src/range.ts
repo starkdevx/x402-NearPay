@@ -1,6 +1,6 @@
 import { RangePurchaseRequest, RangePurchaseResponse } from '@x402-gateway/types';
 
-const FACILITATOR_URL = process.env.FACILITATOR_URL || 'http://localhost:3000';
+const FACILITATOR_URL = process.env.FACILITATOR_URL || 'http://localhost:3005';
 
 export class RangeManager {
   public static async purchaseRange(reqData: RangePurchaseRequest): Promise<RangePurchaseResponse> {
@@ -17,3 +17,4 @@ export class RangeManager {
     return await res.json() as RangePurchaseResponse;
   }
 }
+

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { getPriceForMethod } from './pricing.js';
 
-const FACILITATOR_URL = process.env.FACILITATOR_URL || 'http://localhost:3000';
+const FACILITATOR_URL = process.env.FACILITATOR_URL || 'http://localhost:3005';
 const PAYMENT_RECIPIENT = process.env.PAYMENT_RECIPIENT || 'treasury.nearpay.near';
 
 export async function x402PaymentMiddleware(req: Request, res: Response, next: NextFunction): Promise<any> {
@@ -88,3 +88,4 @@ export async function x402PaymentMiddleware(req: Request, res: Response, next: N
     rangeBatchingAvailable: true
   });
 }
+

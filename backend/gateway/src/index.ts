@@ -71,3 +71,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`[NEAR x402 Gateway] RPC Endpoint: http://localhost:${PORT}/rpc`);
   console.log(`[NEAR x402 Gateway] Pricing Directory: http://localhost:${PORT}/pricing`);
 });
+

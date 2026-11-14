@@ -6,3 +6,4 @@ runCli(process.argv.slice(2)).catch((err) => {
   console.error('[near-pay fatal error]', err);
   process.exit(1);
 });
+

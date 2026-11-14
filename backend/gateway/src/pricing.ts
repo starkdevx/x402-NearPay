@@ -61,3 +61,4 @@ export const DEFAULT_PRICE: MethodPrice = {
 export function getPriceForMethod(method: string): MethodPrice {
   return PRICING_TABLE[method.toLowerCase()] || DEFAULT_PRICE;
 }
+
