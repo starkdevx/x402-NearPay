@@ -55,16 +55,17 @@ This gateway enables sustainable monetization of NEAR archival and historical da
             └─────────────┘
 ```
 
+
 ## Demo
+[![Project Demo](assets/demo-thumbnail.png)](https://github.com/user-attachments/assets/cd3c146d-c065-4022-b650-dff3f8287831)
 
-<video src="https://github.com/starkdevx/x402-NearPay/blob/main/nearViel.mp4"
-       controls
-       autoplay
-       muted
-       loop
-       width="100%">
-</video>
-
+| Feature | Preview |
+| :--- | :--- |
+| **Landing Page (`/`)** | ![Landing Page](https://github.com/akshaydhayal/MintMyDeal/blob/main/frontend/assets/Mint-My-Deals0.png) |
+| **Gasless Invoicing (`/app` & `/invoice/[id]`)** | <img src="https://github.com/akshaydhayal/MintMyDeal/blob/main/frontend/assets/Mint-My-Deals0.png" width="49%" /> <img src="https://github.com/akshaydhayal/MintMyDeal/blob/main/frontend/assets/Mint-My-Deals0.png" width="49%" /> |
+| **Merchant Pay & Item Checkout (`/pay/[id]`)** | ![Merchant Checkout](https://github.com/starkdevx/Near-VielPay/blob/main/v1.png) |
+| **Private Payrolls — Company & Members (`/app`)** | ![Private Payrolls](https://github.com/starkdevx/Near-VielPay/blob/main/v1.png) |
+| **Bookkeeper Audit & Accountant CSV Export** | ![Bookkeeper Audit](https://github.com/starkdevx/Near-VielPay/blob/main/v1.png) |
 
 
 ---
