@@ -55,6 +55,18 @@ This gateway enables sustainable monetization of NEAR archival and historical da
             └─────────────┘
 ```
 
+## Demo
+
+<video src="https://github.com/starkdevx/x402-NearPay/blob/main/nearViel.mp4"
+       controls
+       autoplay
+       muted
+       loop
+       width="100%">
+</video>
+
+
+
 ---
 
 ## 🚀 Key Features
